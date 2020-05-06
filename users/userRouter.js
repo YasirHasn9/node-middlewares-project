@@ -54,11 +54,8 @@ router.get("/:id/posts", async (req, res, next) => {
 });
 router.post("/:id/posts", async (req, res, next) => {
   // do your magic!
-  // const newPost = req.body;
-  // Posts.insert(newPost)
-  //   .then(post => res.json(post))
-  //   .catch(next);
   try {
+    // check the user
     const user = await Users.getById(req.params.id);
     if (user) {
       const newPost = await Posts.insert(req.body);
@@ -71,8 +68,20 @@ router.post("/:id/posts", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   // do your magic!
+  try {
+    // check the user
+    const user = await Users.getById(req.params.id);
+    if (user) {
+      await Users.remove(req.params.id);
+      res.status(202).end();
+    } else {
+      res.status(404).json({ message: "Not Found" });
+    }
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.put("/:id", (req, res) => {
