@@ -52,6 +52,7 @@ router.get("/:id/posts", async (req, res, next) => {
     next(err);
   }
 });
+
 router.post("/:id/posts", async (req, res, next) => {
   // do your magic!
   try {
@@ -84,8 +85,20 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   // do your magic!
+  try {
+    // check the user
+    const user = await Users.getById(req.params.id);
+    if (user) {
+      const updatedUser = await Users.update(req.params.id, req.body);
+      res.json(updatedUser);
+    } else {
+      res.status(404).json({ message: "Not Found" });
+    }
+  } catch (err) {
+    next(err);
+  }
 });
 
 //custom middleware
