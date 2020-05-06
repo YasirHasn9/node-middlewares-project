@@ -13,42 +13,49 @@ router.get("/", async (req, res, next) => {
     next(err);
   }
 });
-router.post("/", async (req, res, next) => {
+router.post("/", validatePost(), async (req, res, next) => {
   // do your magic!
-  try {
-    const newUser = await Users.insert(req.body);
-    res.status(201).json(newUser);
-  } catch (err) {
-    console.log("Users:POST", err);
-    next(err);
-  }
+
+  const newUser = await Users.insert(req.body);
+  res.status(201).json(newUser);
 });
-router.get("/:id", validateUserId(), (req, res) => {
+router.get("/:id", validateUserId(), validateUser(), (req, res) => {
   res.json(req.user);
 });
 
-router.get("/:id/posts", validateUserId(), async (req, res, next) => {
-  // do your magic!
-  try {
-    const posts = await Users.getUserPosts(req.params.id);
-    res.json(posts);
-  } catch (err) {
-    console.log("GET: :/posts", err);
-    next(err);
+router.get(
+  "/:id/posts",
+  validateUserId(),
+  validateUser(),
+  async (req, res, next) => {
+    // do your magic!
+    try {
+      const posts = await Users.getUserPosts(req.params.id);
+      res.json(posts);
+    } catch (err) {
+      console.log("GET: :/posts", err);
+      next(err);
+    }
   }
-});
+);
 
-router.post("/:id/posts", validateUserId(), async (req, res, next) => {
-  // do your magic!
-  try {
-    const newPost = await Posts.insert(req.body);
-    return res.json(newPost);
-  } catch (err) {
-    next(err);
+router.post(
+  "/:id/posts",
+  validateUserId(),
+  validatePost(),
+  validateUser(),
+  async (req, res, next) => {
+    // do your magic!
+    try {
+      const newPost = await Posts.insert(req.body);
+      return res.json(newPost);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-router.delete("/:id", validateUserId(), async (req, res) => {
+router.delete("/:id", validateUserId(), validateUser(), async (req, res) => {
   // do your magic!
   try {
     await Users.remove(req.params.id);
@@ -58,7 +65,7 @@ router.delete("/:id", validateUserId(), async (req, res) => {
   }
 });
 
-router.put("/:id", validateUserId(), async (req, res) => {
+router.put("/:id", validateUserId(), validateUser(), async (req, res) => {
   // do your magic!
   try {
     const updatedUser = await Users.update(req.params.id, req.body);
@@ -88,12 +95,42 @@ function validateUserId() {
   };
 }
 
-function validateUser(req, res, next) {
+function validateUser() {
   // do your magic!
+  return async (req, res, next) => {
+    try {
+      let user = await Users.getById(req.params.id);
+      if (user) {
+        next();
+      } else {
+        return res.status(500).json({
+          message: "There is no user"
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
+  };
 }
 
-function validatePost(req, res, next) {
+function validatePost() {
   // do your magic!
+  return async (req, res, next) => {
+    try {
+      if (!req.body.name) {
+        return res.status(402).json({
+          message: "Name should be filled in "
+        });
+      }
+      const post = await Users.insert(req.body);
+      if (post) {
+        next();
+      }
+    } catch (err) {
+      next(err);
+    }
+  };
 }
 
 module.exports = router;
