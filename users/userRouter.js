@@ -36,11 +36,22 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/:id/posts", (req, res) => {
+router.get("/:id/posts", async (req, res, next) => {
   // do your magic!
+  try {
+    const user = await Users.getById(req.params.id);
+    if (user) {
+      const posts = await Users.getUserPosts(req.params.id);
+      res.json(posts);
+    } else {
+      res.status(404).json({ message: "Not Found" });
+    }
+  } catch (err) {
+    console.log("GET: :/posts", err);
+    next(err);
+  }
 });
-
-router.get("/:id/posts", (req, res) => {
+router.post("/:id/posts", (req, res) => {
   // do your magic!
 });
 
