@@ -2,21 +2,6 @@ const express = require("express");
 const Users = require("./userDb");
 const router = express.Router();
 
-router.post("/", async (req, res, next) => {
-  // do your magic!
-  try {
-    const newUser = await Users.insert(req.body);
-    res.status(201).json(newUser);
-  } catch (err) {
-    console.log("Users:POST", err);
-    next(err);
-  }
-});
-
-router.post("/:id/posts", (req, res) => {
-  // do your magic!
-});
-
 router.get("/", async (req, res, next) => {
   // do your magic!
   try {
@@ -27,8 +12,31 @@ router.get("/", async (req, res, next) => {
     next(err);
   }
 });
+router.post("/", async (req, res, next) => {
+  // do your magic!
+  try {
+    const newUser = await Users.insert(req.body);
+    res.status(201).json(newUser);
+  } catch (err) {
+    console.log("Users:POST", err);
+    next(err);
+  }
+});
+router.get("/:id", async (req, res, next) => {
+  try {
+    const user = await Users.getById(req.params.id);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: "Not Found" });
+    }
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
 
-router.get("/:id", (req, res) => {
+router.post("/:id/posts", (req, res) => {
   // do your magic!
 });
 
