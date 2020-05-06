@@ -4,6 +4,13 @@ const router = express.Router();
 
 router.post("/", async (req, res, next) => {
   // do your magic!
+  try {
+    const newUser = await Users.insert(req.body);
+    res.status(201).json(newUser);
+  } catch (err) {
+    console.log("Users:POST", err);
+    next(err);
+  }
 });
 
 router.post("/:id/posts", (req, res) => {
@@ -17,7 +24,6 @@ router.get("/", async (req, res, next) => {
     const users = await Users.get();
     res.json(users);
   } catch (err) {
-    // err handler for GET
     next(err);
   }
 });
