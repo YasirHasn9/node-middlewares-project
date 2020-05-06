@@ -1,5 +1,6 @@
 const express = require("express");
 const Users = require("./userDb");
+const Posts = require("../posts/postDb");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -51,8 +52,23 @@ router.get("/:id/posts", async (req, res, next) => {
     next(err);
   }
 });
-router.post("/:id/posts", (req, res) => {
+router.post("/:id/posts", async (req, res, next) => {
   // do your magic!
+  // const newPost = req.body;
+  // Posts.insert(newPost)
+  //   .then(post => res.json(post))
+  //   .catch(next);
+  try {
+    const user = await Users.getById(req.params.id);
+    if (user) {
+      const newPost = await Posts.insert(req.body);
+      return res.json(newPost);
+    } else {
+      res.status(404).json({ message: "Not Found" });
+    }
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.delete("/:id", (req, res) => {
