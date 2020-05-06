@@ -1,13 +1,25 @@
-const express = require('express');
+const express = require("express");
 
 const server = express();
-
-server.get('/', (req, res) => {
+server.use(express.json());
+server.get("/", (req, res) => {
   res.send(`<h2>Let's write some middleware!</h2>`);
 });
 
-//custom middleware
+function logger(req, res, next) {
+  return (req, res, next) => {
+    console.log(
+      `
+      Method: ${req.method}\n
+        Url: ${req.url}\n
+        Timestamp : ${new Date().toISOString()}}
+      `
+    );
 
-function logger(req, res, next) {}
+    next();
+  };
+}
+
+server.use(logger());
 
 module.exports = server;
