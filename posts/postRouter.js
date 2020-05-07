@@ -1,20 +1,27 @@
-const express = require('express');
+const express = require("express");
+const Posts = require("./postDb");
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get("/", async (req, res, next) => {
+  // do your magic!
+  try {
+    const posts = await Posts.get();
+    res.json(posts);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/:id", (req, res) => {
   // do your magic!
 });
 
-router.get('/:id', (req, res) => {
+router.delete("/:id", (req, res) => {
   // do your magic!
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
-});
-
-router.put('/:id', (req, res) => {
+router.put("/:id", (req, res) => {
   // do your magic!
 });
 
