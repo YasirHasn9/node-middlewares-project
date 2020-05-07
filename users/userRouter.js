@@ -13,14 +13,15 @@ router.get("/", async (req, res, next) => {
     next(err);
   }
 });
-router.post("/", validatePost(), async (req, res, next) => {
-  // do your magic!
 
+router.post("/", validateUser(), async (req, res, next) => {
+  // do your magic!
   const newUser = await Users.insert(req.body);
   res.status(201).json(newUser);
 });
-router.get("/:id", validateUserId(), validateUser(), (req, res) => {
-  res.json(req.user);
+
+router.get("/:id", validateUserId(), async (req, res) => {
+  await res.json(req.user);
 });
 
 router.get(
@@ -99,8 +100,7 @@ function validateUser() {
   // do your magic!
   return async (req, res, next) => {
     try {
-      let user = await Users.getById(req.params.id);
-      if (user) {
+      if (req.body.name) {
         next();
       } else {
         return res.status(500).json({
