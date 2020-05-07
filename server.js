@@ -5,9 +5,7 @@ const userRouter = require("./posts/postRouter");
 const server = express();
 server.use(express.json());
 server.use(helmet());
-server.get("/", (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`);
-});
+
 
 function logger() {
   return (req, res, next) => {
