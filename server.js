@@ -1,11 +1,12 @@
 const express = require("express");
 const helmet = require("helmet");
+const cors = require("cors");
 const usersRouter = require("./users/userRouter");
 const userRouter = require("./posts/postRouter");
 const server = express();
 server.use(express.json());
 server.use(helmet());
-
+server.use(cors());
 
 function logger() {
   return (req, res, next) => {
