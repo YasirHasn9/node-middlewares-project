@@ -13,8 +13,17 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res, next) => {
   // do your magic!
+  try {
+    if (req.params.id) {
+      return res.status(404).json({ message: "Not found" });
+    }
+    const post = await Posts.getById(req.params.id);
+    res.json(post);
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.delete("/:id", (req, res) => {
