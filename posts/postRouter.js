@@ -13,61 +13,43 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
-  // do your magic!
-  try {
-    if (!req.params.id) {
-      return res.status(404).json({ message: "Not found" });
-    }
-    const post = await Posts.getById(req.params.id);
-    if (post) {
-      res.json(post);
-      next();
-    } else {
-      res.status(404).json({ message: "Post not Found" });
-    }
-  } catch (err) {
-    next(err);
-  }
+router.get("/:id", validatePostId(), (req, res) => {
+  res.json(req.post);
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", validatePostId(), async (req, res, next) => {
   // do your magic!
-  try {
-    if (!req.params.id) {
-      return res.status(404).json({ message: "Not found" });
-    }
-    await Posts.remove(req.params.id);
-    res.end();
-    next();
-  } catch (err) {
-    next(err);
-  }
+
+  await Posts.remove(req.params.id);
+  res.end();
 });
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", validatePostId(), async (req, res, next) => {
   // do your magic!
-  try {
-    if (!req.params.id) {
-      return res.status(404).json({ message: "Not found" });
-    }
-    const post = await Posts.getById(req.params.id);
-    if (post) {
-      const updatedPost = await Posts.update(req.params.id, req.body);
-      res.status(201).json(updatedPost);
-      next();
-    } else {
-      res.status(404).json({ message: "Post not found" });
-    }
-  } catch (err) {
-    next(err);
-  }
+  const updatedPost = await Posts.update(req.params.id, req.body);
+  res.status(201).json(updatedPost);
 });
 
 // custom middleware
 
-function validatePostId(req, res, next) {
+function validatePostId() {
   // do your magic!
+  return async (req, res, next) => {
+    try {
+      if (req.params.id) {
+        let post = await Posts.getById(req.params.id);
+        if (post) {
+          req.post = post;
+          next();
+        } else {
+          return res.status(404).json({ message: "Not Found" });
+        }
+      }
+    } catch (err) {
+      console.lor(err);
+      next(err);
+    }
+  };
 }
 
 module.exports = router;
